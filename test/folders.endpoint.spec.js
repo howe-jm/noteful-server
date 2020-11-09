@@ -5,6 +5,8 @@ const app = require('../src/app');
 const { makeFoldersArray } = require('./folders.fixtures');
 const { makeNotesArray } = require('./notes.fixtures');
 
+let token = '49d6cc60-c0bb-47df-8472-c44ec0def09f';
+
 describe('Folders Endpoints', function () {
   let db;
 
@@ -31,6 +33,7 @@ describe('Folders Endpoints', function () {
       it('Returns a 404 error', () => {
         return supertest(app)
           .get('/api/folders')
+          .set({ Authorization: `Bearer ${token}` })
           .expect(404, { error: { message: 'No folders' } });
       });
     });
@@ -43,7 +46,10 @@ describe('Folders Endpoints', function () {
     });
 
     it('Responds with 200 and all of the folders', () => {
-      return supertest(app).get('/api/folders').expect(200, testFolders);
+      return supertest(app)
+        .get('/api/folders')
+        .set({ Authorization: `Bearer ${token}` })
+        .expect(200, testFolders);
     });
   });
 
@@ -54,6 +60,7 @@ describe('Folders Endpoints', function () {
       };
       return supertest(app)
         .post('/api/folders')
+        .set({ Authorization: `Bearer ${token}` })
         .send(newFolder)
         .expect(201)
         .expect((res) => {
@@ -62,7 +69,10 @@ describe('Folders Endpoints', function () {
           expect(res.headers.location).to.eql(`/api/folders/${res.body.id}`);
         })
         .then((postRes) =>
-          supertest(app).get(`/api/folders/${postRes.body.id}`).expect(postRes.body)
+          supertest(app)
+            .get(`/api/folders/${postRes.body.id}`)
+            .set({ Authorization: `Bearer ${token}` })
+            .expect(postRes.body)
         );
     });
   });
@@ -72,6 +82,7 @@ describe('Folders Endpoints', function () {
         const folderId = 449;
         return supertest(app)
           .get(`/api/folders/${folderId}`)
+          .set({ Authorization: `Bearer ${token}` })
           .expect(404, { error: { message: 'Folder does not exist' } });
       });
     });
@@ -90,7 +101,10 @@ describe('Folders Endpoints', function () {
       it('Returns with 200 and the specified folder', () => {
         const folderId = 2;
         const expectedFolder = testFolders[folderId - 1];
-        return supertest(app).get(`/api/folders/${folderId}`).expect(200, expectedFolder);
+        return supertest(app)
+          .get(`/api/folders/${folderId}`)
+          .set({ Authorization: `Bearer ${token}` })
+          .expect(200, expectedFolder);
       });
     });
     context('Given an XSS attack foldername', () => {
@@ -106,6 +120,7 @@ describe('Folders Endpoints', function () {
       it('Removes XSS attack content', () => {
         return supertest(app)
           .get(`/api/folders/${maliciousFolder.id}`)
+          .set({ Authorization: `Bearer ${token}` })
           .expect(200)
           .expect((res) => {
             expect(res.body.foldername).to.eql(
