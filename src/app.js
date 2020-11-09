@@ -7,6 +7,7 @@ const { NODE_ENV } = require('./config');
 
 const notesRouter = require('./notes/notes-router');
 const foldersRouter = require('./folders/folders-router');
+const validateBearerToken = require('./bearerToken');
 
 const app = express();
 
@@ -15,6 +16,7 @@ const morganOption = NODE_ENV === 'production' ? 'tiny' : 'common';
 app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
+app.use(validateBearerToken);
 app.use('/api/folders', foldersRouter);
 app.use('/api/notes', notesRouter);
 
