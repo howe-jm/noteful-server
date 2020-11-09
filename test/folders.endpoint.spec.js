@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { expect } = require('chai');
 const knex = require('knex');
 const supertest = require('supertest');
@@ -5,7 +6,7 @@ const app = require('../src/app');
 const { makeFoldersArray } = require('./folders.fixtures');
 const { makeNotesArray } = require('./notes.fixtures');
 
-let token = '49d6cc60-c0bb-47df-8472-c44ec0def09f';
+let token = process.env.API_KEY;
 
 describe('Folders Endpoints', function () {
   let db;
