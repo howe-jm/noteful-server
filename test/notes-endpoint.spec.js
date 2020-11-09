@@ -171,7 +171,7 @@ describe('Notes Endpoints', function () {
         return supertest(app)
           .delete(`/api/notes/${idToRemove}`)
           .expect(204)
-          .then((res) => supertest(app).get('/api/notes').expect(expectedNotes));
+          .then(() => supertest(app).get('/api/notes').expect(expectedNotes));
       });
     });
   });
