@@ -1,5 +1,5 @@
 {
-  "name": "express-boilerplate",
+  "name": "noteful-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -13,7 +13,10 @@
     "deploy": "git push heroku master"
   },
   "keywords": [],
-  "author": "",
+  "engines": {
+    "node": "12.18.4"
+  },
+  "author": "howe-jm",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
