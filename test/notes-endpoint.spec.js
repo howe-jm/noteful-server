@@ -53,31 +53,37 @@ describe('Notes Endpoints', function () {
     });
   });
 
-  describe.only('POST /api/notes', () => {
-    it('Creates a new note, responding with a 201 and the new note', () => {
-      this.retries(3);
-      const newNote = {
-        notename: 'Test note name',
-        folderid: 2,
-        content: 'Test note content!',
-      };
-      return supertest(app)
-        .post('/api/notes')
-        .send(newNote)
-        .expect(201)
-        .expect((res) => {
-          expect(res.body.notename).to.eql(newNote.notename);
-          expect(res.body.folderid).to.eql(newNote.folderid);
-          expect(res.body.content).to.eql(newNote.content);
-          expect(res.body).to.have.property('id');
-          expect(res.headers.location).to.eql(`/api/notes/${res.body.id}`);
-          const expected = new Date().toLocaleString();
-          const actual = new Date(res.body.modified).toLocaleString();
-          expect(actual).to.eql(expected);
-        })
-        .then((postRes) => {
-          supertest(app).get(`/api/notes/${postRes.body.id}`).expect(postRes.body);
-        });
+  describe('POST /api/notes', () => {
+    context('Given there are notes in the database', () => {
+      const testFolders = makeFoldersArray();
+
+      beforeEach('Insert notes', () => {
+        return db.into('noteful_folders').insert(testFolders);
+      });
+      it('Creates a new note, responding with a 201 and the new note', () => {
+        const newNote = {
+          notename: 'Test note name',
+          folderid: 2,
+          content: 'Test note content!',
+        };
+        return supertest(app)
+          .post('/api/notes')
+          .send(newNote)
+          .expect(201)
+          .expect((res) => {
+            expect(res.body.notename).to.eql(newNote.notename);
+            expect(res.body.folderid).to.eql(newNote.folderid);
+            expect(res.body.content).to.eql(newNote.content);
+            expect(res.body).to.have.property('id');
+            expect(res.headers.location).to.eql(`/api/notes/${res.body.id}`);
+            const expected = new Date().toLocaleString();
+            const actual = new Date(res.body.modified).toLocaleString();
+            expect(actual).to.eql(expected);
+          })
+          .then((postRes) =>
+            supertest(app).get(`/api/notes/${postRes.body.id}`).expect(postRes.body)
+          );
+      });
     });
   });
 
