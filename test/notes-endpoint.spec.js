@@ -143,5 +143,37 @@ describe('Notes Endpoints', function () {
       });
     });
   });
+
+  describe('DELETE /api/notes/:note_id', () => {
+    context('Given no notes in the database', () => {
+      it('Returns a 404 error', () => {
+        const noteId = 442;
+        return supertest(app)
+          .delete(`/api/notes/${noteId}`)
+          .expect(404, { error: { message: 'Note does not exist' } });
+      });
+    });
+    context('Given there are notes in the database', () => {
+      const testNotes = makeNotesArray();
+      const testFolders = makeFoldersArray();
+
+      beforeEach('Insert folders and notes', () => {
+        return db
+          .into('noteful_folders')
+          .insert(testFolders)
+          .then(() => {
+            return db.into('noteful_notes').insert(testNotes);
+          });
+      });
+      it('Returns with 204 and removes the note', () => {
+        const idToRemove = 2;
+        const expectedNotes = testNotes.filter((note) => note.id !== idToRemove);
+        return supertest(app)
+          .delete(`/api/notes/${idToRemove}`)
+          .expect(204)
+          .then((res) => supertest(app).get('/api/notes').expect(expectedNotes));
+      });
+    });
+  });
   // Reserved for future tests
 });
